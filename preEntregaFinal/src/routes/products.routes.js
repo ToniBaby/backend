@@ -11,6 +11,7 @@
 
     res.send({
         status: "success",
+        
         productos: products
      })
  })
