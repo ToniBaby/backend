@@ -2,21 +2,33 @@
 	{
 		"name": "Xina",
 		"age": 8,
-		"id": 1
+		"id": 1,
+		"title": "Camiseta de algodón",
+		"description": "Camiseta suave y cómoda",
+		"code": "ABC123",
+		"price": 19.99,
+		"status": true,
+		"stock": 50,
+		"category": "Ropa",
+		"thumbnails": [
+			"url_imagen_1.jpg",
+			"url_imagen_2.jpg"
+		]
 	},
 	{
-		"name": "buffy",
+		"name": "Bufy",
 		"age": 8,
-		"id": 2
-	},
-	{
-		"name": "buffy",
-		"age": 8,
-		"id": 3
-	},
-	{
-		"name": "moni",
-		"age": 8,
-		"id": 4
+		"id": 2,
+		"title": "Camiseta de algodón",
+		"description": "Camiseta suave y cómoda",
+		"code": "ABC123",
+		"price": 19.99,
+		"status": true,
+		"stock": 50,
+		"category": "Ropa",
+		"thumbnails": [
+			"url_imagen_1.jpg",
+			"url_imagen_2.jpg"
+		]
 	}
 ]

@@ -8,18 +8,30 @@ class ProductManagerFile {
         this.path = path.join(__dirname,`/files/${pathFile}`);
 
     }
-    getProducts = async ()=>{
+ 
 
-        if(fs.existsSync(this.path)){
+    getProducts = async () => {
+        if (fs.existsSync(this.path)) {
             const data = await fs.promises.readFile(this.path, 'utf-8');
-            const  products = JSON.parse(data);
+            let products = JSON.parse(data);
+    
+            const requiredFields = ["title", "description", "code", "price", "status", "stock", "category", "thumbnails"];
+    
+           
+            products = products.map(product => {
+                requiredFields.forEach(field => {
+                    if (!product.hasOwnProperty(field)) {
+                        product[field] = ''; 
+                    }
+                });
+                return product;
+            });
+    
             return products;
-
-        }else{
-            return[]
+        } else {
+            return [];
         }
     }
-
     
 
         createProducts = async (product)=>{
@@ -51,20 +63,23 @@ class ProductManagerFile {
         return updatedProduct;
     }
 
-    deleteProduct = async (id) => {
+    deleteProduct = async (productId) => {
         const products = await this.getProducts();
-        const index = products.findIndex(product => product.id === id);
+        const index = products.findIndex(product => product.id === productId);
+    
         if (index === -1) {
             console.error('Producto no encontrado');
             return null;
         }
-
+    
         const deletedProduct = products.splice(index, 1)[0];
-
-        await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
-
+    
+       await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
+    
         return deletedProduct;
     }
+    
+    
 }
 
 
