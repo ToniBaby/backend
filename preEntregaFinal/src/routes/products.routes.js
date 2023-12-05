@@ -6,17 +6,28 @@
  const productManagerFile = new ProductManagerFile(path);
 
  router.get('/', async (req, res) => {
-    const limit = parseInt(req.query.limit); 
-    const products = await productManagerFile.getProducts();
-
-  
-    const limitedProducts = limit && !isNaN(limit) ? products.slice(0, limit) : products;
-
-    res.send({
-        status: "success",
-        productos: limitedProducts
-    });
+    try {
+        const limit = parseInt(req.query.limit);
+        const products = await productManagerFile.getProducts();
+      
+        let limitedProducts = products;
+        if (!isNaN(limit)) {
+            limitedProducts = products.slice(0, limit);
+        }
+        
+        res.status(200).send({
+            status: "success",
+            productos: limitedProducts
+        });
+    } catch (error) {
+        res.status(500).send({
+            status: 500,
+            message: 'Error',
+            error: error.message
+        });
+    }
 });
+
  router.get('/:pid', async (req,res)=>{
     const pid = req.params.pid;
 
@@ -50,33 +61,62 @@
     });
 });
 
-router.put('/:pid', async (req,res)=>{
-    const pid = req.params.pid;
- 
-    res.send({
-        status: "success",
-        msg: `Ruta PUT de PRODUCTS con ID: ${pid}`
-     })
- })
+router.put('/:pid', async (req, res) => {
+    try {
+        const productId = parseInt(req.params.pid);
+        const newData = req.body;
 
- router.delete('/:pid', async (req, res) => {
-    const pid = req.params.pid;
+        const updatedProduct = await productManagerFile.updateProduct(productId, newData);
 
-    const deletedProduct = await productManagerFile.deleteProduct(pid);
-
-    if (!deletedProduct) {
-        res.send({
-            status: 'error',
-            message: 'Producto no encontrado'
-        });
-    } else {
-        res.send({
-            status: 'success',
-            message: 'Producto eliminado correctamente',
-            deletedProduct: deletedProduct
+        if (!updatedProduct) {
+            res.status(404).send({
+                status: 'error',
+                message: 'Producto no encontrado'
+            });
+        } else {
+            res.status(200).send({
+                status: 'success',
+                message: 'Producto actualizado correctamente',
+                producto: updatedProduct
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            status: 500,
+            message: 'Producto no encontrado',
+            error: error.message
         });
     }
 });
+
+
+router.delete('/:pid', async (req, res) => {
+    try {
+        const productId = parseInt(req.params.pid);
+
+        const deletedProduct = await productManagerFile.deleteProduct(productId);
+
+        if (!deletedProduct) {
+            res.status(404).send({
+                status: 'error',
+                message: 'Producto no encontrado'
+            });
+        } else {
+            res.status(200).send({
+                status: 'success',
+                message: 'Producto eliminado correctamente',
+                deletedProduct: deletedProduct
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            status: 500,
+            message: 'Error',
+            error: error.message
+        });
+    }
+});
+
 
 
  export {router as productRouter};

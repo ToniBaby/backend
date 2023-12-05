@@ -34,34 +34,63 @@ class ProductManagerFile {
     }
     
 
-        createProducts = async (product)=>{
+    createProducts = async (product) => {
+        try {
             const products = await this.getProducts();
-            if(products.length === 0){
-                product.id = 1;
-            }else{
-                product.id = products[products.length-1].id + 1 ;
+    
+            // Validar que se envíen todos los campos obligatorios
+            const requiredFields = ["title", "description", "code", "price", "status", "stock", "category"];
+            for (const field of requiredFields) {
+                if (!product[field]) {
+                    throw new Error(`El campo ${field} es obligatorio.`);
+                }
             }
-
+    
+            // Autogenerar el ID del producto
+            if (products.length === 0) {
+                product.id = 1;
+            } else {
+                product.id = products[products.length - 1].id + 1;
+            }
+    
+            // Agregar el producto completo, no solo el ID
             products.push(product);
-            await fs.promises.writeFile(this.path, JSON.stringify(products,null,'\t'))
-            return products
+            await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
+            
+            return { status: 201, message: 'Producto creado correctamente', producto: product };
+        } catch (error) {
+            return { status: 400, message: 'Error al crear el producto', error: error.message };
         }
+    }
+    
 
     updateProduct = async (id, newData) => {
-        const products = await this.getProducts();
-        const index = products.findIndex(product => product.id === id);
-        if (index === -1) {
-            console.error('Producto no encontrado');
+        try {
+            const products = await this.getProducts();
+            const index = products.findIndex(product => product.id === id);
+    
+            if (index === -1) {
+                throw new Error('Producto no encontrado');
+            }
+    
+            const requiredFields = ["title", "description", "code", "price", "status", "stock", "category", "thumbnails"];
+            for (const field of requiredFields) {
+                if (!(field in newData)) {
+                    throw new Error(`El campo ${field} es obligatorio para actualizar.`);
+                }
+            }
+    
+            products[index] = newData;
+    
+            await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
+    
+            return products[index];
+        } catch (error) {
+            console.error(error.message);
             return null;
         }
-
-        const updatedProduct = { ...products[index], ...newData };
-        products[index] = updatedProduct;
-
-        await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'));
-
-        return updatedProduct;
     }
+    
 
     deleteProduct = async (productId) => {
         const products = await this.getProducts();
